@@ -80,6 +80,9 @@ model Favorite {
   opportunityId String
 
   @@unique([userId, opportunityId])
+@@index([city])
+@@index([sector])
+@@index([expectedROI])
 }
 
 model Review {
@@ -105,6 +108,3 @@ enum MediaType {
   DOCUMENT
 }
 
-@@index([city])
-@@index([sector])
-@@index([expectedROI])
