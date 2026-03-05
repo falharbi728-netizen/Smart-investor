@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  role          UserRole  @default(INVESTOR)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  opportunities Opportunity[] @relation("OwnerOpportunities")
+  messagesSent  Message[] @relation("MessagesSent")
+  messagesReceived Message[] @relation("MessagesReceived")
+  favorites     Favorite[]
+  reviews       Review[]
+}
+
+model Opportunity {
+  id              String             @id @default(cuid())
+  title           String
+  description     String
+  city            String
+  sector          String
+  investmentCost  Float
+  expectedROI     Float
+  riskLevel       Int
+  smartScore      Float              @default(0)
+  owner           User               @relation("OwnerOpportunities", fields: [ownerId], references: [id])
+  ownerId         String
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  feasibilityStudies FeasibilityStudy[]
+  media           OpportunityMedia[]
+  favorites       Favorite[]
+  reviews         Review[]
+}
+
+model FeasibilityStudy {
+  id            String      @id @default(cuid())
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+  opportunityId String
+  consultant    User        @relation(fields: [consultantId], references: [id])
+  consultantId  String
+  fileUrl       String
+  aiSummary     String?
+  createdAt     DateTime    @default(now())
+}
+
+model OpportunityMedia {
+  id            String      @id @default(cuid())
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+  opportunityId String
+  type          MediaType
+  url           String
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  content     String
+  createdAt   DateTime @default(now())
+  sender      User     @relation("MessagesSent", fields: [senderId], references: [id])
+  senderId    String
+  recipient   User     @relation("MessagesReceived", fields: [recipientId], references: [id])
+  recipientId String
+  opportunity Opportunity? @relation(fields: [opportunityId], references: [id])
+  opportunityId String?
+}
+
+model Favorite {
+  id            String      @id @default(cuid())
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+  opportunityId String
+
+  @@unique([userId, opportunityId])
+}
+
+model Review {
+  id            String      @id @default(cuid())
+  rating        Int
+  comment       String?
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+  opportunityId String
+  createdAt     DateTime    @default(now())
+}
+
+enum UserRole {
+  INVESTOR
+  CONSULTANT
+  ADMIN
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+}
+
+@@index([city])
+@@index([sector])
+@@index([expectedROI])
