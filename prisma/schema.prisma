@@ -39,6 +39,9 @@ model Opportunity {
   media           OpportunityMedia[]
   favorites       Favorite[]
   reviews         Review[]
+  @@index([city])
+  @@index([sector])
+  @@index([expectedROI])
 }
 
 model FeasibilityStudy {
@@ -80,9 +83,7 @@ model Favorite {
   opportunityId String
 
   @@unique([userId, opportunityId])
-@@index([city])
-@@index([sector])
-@@index([expectedROI])
+
 }
 
 model Review {
