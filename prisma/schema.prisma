@@ -19,6 +19,7 @@ model User {
   messagesReceived Message[] @relation("MessagesReceived")
   favorites     Favorite[]
   reviews       Review[]
+feasibilityStudies FeasibilityStudy[]
 }
 
 model Opportunity {
@@ -42,6 +43,7 @@ model Opportunity {
   @@index([city])
   @@index([sector])
   @@index([expectedROI])
+messages Message[]
 }
 
 model FeasibilityStudy {
